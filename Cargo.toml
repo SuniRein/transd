@@ -14,3 +14,11 @@ license = "MIT"
 repository = "https://github.com/SuniRein/transd"
 
 [workspace.dependencies]
+async-trait = "0.1.89"
+reqwest = "0.13.2"
+rootcause = "0.12.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+
+transd-translate = { path = "crates/transd-translate" }

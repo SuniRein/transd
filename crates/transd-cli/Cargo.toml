@@ -7,3 +7,9 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+clap = { version = "4.6.1", features = ["derive"] }
+rootcause = { workspace = true }
+tokio = { workspace = true }
+
+transd-provider-mozhi = { path = "../transd-provider/mozhi" }
+transd-translate = { workspace = true }
