@@ -1,0 +1,16 @@
+[workspace]
+resolver = "3"
+members = [
+    "crates/transd-cli",
+    "crates/transd-translate",
+    "crates/transd-provider/*",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["SuniRein <sunirein@qq.com>"]
+license = "MIT"
+repository = "https://github.com/SuniRein/transd"
+
+[workspace.dependencies]
