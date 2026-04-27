@@ -32,6 +32,10 @@ enum Command {
 
 #[derive(Args)]
 struct TranslateArgs {
+    /// Translation engine to use (e.g., "google")
+    #[arg(short, long)]
+    engine: String,
+
     /// Source language (e.g., "en" for English)
     #[arg(short, long, value_name = "LANG")]
     from: String,
@@ -67,7 +71,10 @@ async fn main() -> Result<(), Report> {
 
 async fn cmd_translate(args: TranslateArgs) -> Result<(), Report> {
     let translator = MozhiTranslator::new(MOZHI_INSTANCE.clone());
-    match translator.translate(&args.text, &args.from, &args.to).await {
+    match translator
+        .translate(&args.text, &args.engine, &args.from, &args.to)
+        .await
+    {
         Ok(result) => println!("Translation: {}", result),
         Err(e) => eprintln!("Error: {}", e),
     }

@@ -19,12 +19,18 @@ impl MozhiTranslator {
 impl Translator for MozhiTranslator {
     type Error = Report;
 
-    async fn translate(&self, text: &str, from: &str, to: &str) -> Result<String, Self::Error> {
+    async fn translate(
+        &self,
+        text: &str,
+        engine: &str,
+        from: &str,
+        to: &str,
+    ) -> Result<String, Self::Error> {
         let client = Client::new();
         let response = client
             .get(format!("{}/api/translate", self.uri))
             .query(&[
-                ("engine", "google"),
+                ("engine", engine),
                 ("text", text),
                 ("from", from),
                 ("to", to),
