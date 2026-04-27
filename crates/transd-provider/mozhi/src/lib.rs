@@ -7,11 +7,15 @@ use transd_translate::{Engine, Language, Translator};
 
 pub struct MozhiTranslator {
     uri: String,
+    client: Client,
 }
 
 impl MozhiTranslator {
     pub fn new(uri: String) -> Self {
-        Self { uri }
+        Self {
+            uri,
+            client: Client::new(),
+        }
     }
 }
 
@@ -26,8 +30,8 @@ impl Translator for MozhiTranslator {
         from: &str,
         to: &str,
     ) -> Result<String, Self::Error> {
-        let client = Client::new();
-        let response = client
+        let response = self
+            .client
             .get(format!("{}/api/translate", self.uri))
             .query(&[
                 ("engine", engine),
@@ -55,8 +59,8 @@ impl Translator for MozhiTranslator {
     }
 
     async fn list_engines(&self) -> Result<Vec<Engine>, Self::Error> {
-        let client = Client::new();
-        let response = client
+        let response = self
+            .client
             .get(format!("{}/api/engines", self.uri))
             .send()
             .await
@@ -78,11 +82,11 @@ impl Translator for MozhiTranslator {
     }
 
     async fn list_source_languages(&self, engine: &str) -> Result<Vec<Language>, Self::Error> {
-        list_languages(&self.uri, "source", engine).await
+        list_languages(&self.client, &self.uri, "source", engine).await
     }
 
     async fn list_target_languages(&self, engine: &str) -> Result<Vec<Language>, Self::Error> {
-        list_languages(&self.uri, "target", engine).await
+        list_languages(&self.client, &self.uri, "target", engine).await
     }
 }
 
@@ -94,8 +98,12 @@ struct LanguageInfo {
     id: String,
 }
 
-async fn list_languages(uri: &str, kind: &str, engine: &str) -> Result<Vec<Language>, Report> {
-    let client = Client::new();
+async fn list_languages(
+    client: &Client,
+    uri: &str,
+    kind: &str,
+    engine: &str,
+) -> Result<Vec<Language>, Report> {
     let response = client
         .get(format!("{uri}/api/{kind}_languages"))
         .query(&[("engine", engine)])
