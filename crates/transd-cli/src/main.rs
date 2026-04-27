@@ -19,6 +19,15 @@ struct Cli {
 enum Command {
     /// Translate text from one language to another
     Translate(TranslateArgs),
+
+    /// List available translation engines
+    ListEngines,
+
+    /// List supported source languages for a specific translation engine
+    ListSourceLanguages(ListLanguagesArgs),
+
+    /// List supported target languages for a specific translation engine
+    ListTargetLanguages(ListLanguagesArgs),
 }
 
 #[derive(Args)]
@@ -35,12 +44,22 @@ struct TranslateArgs {
     text: String,
 }
 
+#[derive(Args)]
+struct ListLanguagesArgs {
+    /// Translation engine to query (e.g., "google")
+    #[arg(short, long, value_name = "ENGINE")]
+    engine: String,
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Report> {
     let cli = Cli::parse();
 
     match cli.command {
         Command::Translate(args) => cmd_translate(args).await?,
+        Command::ListEngines => cmd_list_engines().await?,
+        Command::ListSourceLanguages(args) => cmd_list_source_languages(args).await?,
+        Command::ListTargetLanguages(args) => cmd_list_target_languages(args).await?,
     }
 
     Ok(())
@@ -50,6 +69,51 @@ async fn cmd_translate(args: TranslateArgs) -> Result<(), Report> {
     let translator = MozhiTranslator::new(MOZHI_INSTANCE.clone());
     match translator.translate(&args.text, &args.from, &args.to).await {
         Ok(result) => println!("Translation: {}", result),
+        Err(e) => eprintln!("Error: {}", e),
+    }
+
+    Ok(())
+}
+
+async fn cmd_list_engines() -> Result<(), Report> {
+    let translator = MozhiTranslator::new(MOZHI_INSTANCE.clone());
+    match translator.list_engines().await {
+        Ok(engines) => {
+            println!("Available translation engines:");
+            for engine in engines {
+                println!("- {} ({})", engine.name, engine.id);
+            }
+        }
+        Err(e) => eprintln!("Error: {}", e),
+    }
+
+    Ok(())
+}
+
+async fn cmd_list_source_languages(args: ListLanguagesArgs) -> Result<(), Report> {
+    let translator = MozhiTranslator::new(MOZHI_INSTANCE.clone());
+    match translator.list_source_languages(&args.engine).await {
+        Ok(languages) => {
+            println!("Supported source languages for engine '{}':", args.engine);
+            for lang in languages {
+                println!("- {} ({})", lang.name, lang.id);
+            }
+        }
+        Err(e) => eprintln!("Error: {}", e),
+    }
+
+    Ok(())
+}
+
+async fn cmd_list_target_languages(args: ListLanguagesArgs) -> Result<(), Report> {
+    let translator = MozhiTranslator::new(MOZHI_INSTANCE.clone());
+    match translator.list_target_languages(&args.engine).await {
+        Ok(languages) => {
+            println!("Supported target languages for engine '{}':", args.engine);
+            for lang in languages {
+                println!("- {} ({})", lang.name, lang.id);
+            }
+        }
         Err(e) => eprintln!("Error: {}", e),
     }
 
