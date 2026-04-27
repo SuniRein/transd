@@ -31,7 +31,9 @@ impl Translator for MozhiTranslator {
             ])
             .send()
             .await
-            .context("Failed to send translation request")?;
+            .context("Failed to send translation request")?
+            .error_for_status()
+            .context("Received error response for translation request")?;
 
         let response_json = response
             .json::<serde_json::Value>()
@@ -52,7 +54,9 @@ impl Translator for MozhiTranslator {
             .get(format!("{}/api/engines", self.uri))
             .send()
             .await
-            .context("Failed to send engines request")?;
+            .context("Failed to send engines request")?
+            .error_for_status()
+            .context("Received error response for engines request")?;
 
         let response_map = response
             .json::<IndexMap<String, String>>()
@@ -91,7 +95,11 @@ async fn list_languages(uri: &str, kind: &str, engine: &str) -> Result<Vec<Langu
         .query(&[("engine", engine)])
         .send()
         .await
-        .context(format!("Failed to send {kind} languages request"))?;
+        .context(format!("Failed to send {kind} languages request"))?
+        .error_for_status()
+        .context(format!(
+            "Received error response for {kind} languages request"
+        ))?;
 
     let response_info = response
         .json::<Vec<LanguageInfo>>()
