@@ -44,8 +44,8 @@ struct TranslateArgs {
     #[arg(short, long, value_name = "LANG")]
     to: String,
 
-    /// Text to translate
-    text: String,
+    /// Text to translate. If omitted or set to "-", read from stdin.
+    text: Option<String>,
 }
 
 #[derive(Args)]
@@ -71,8 +71,14 @@ async fn main() -> Result<(), Report> {
 
 async fn cmd_translate(args: TranslateArgs) -> Result<(), Report> {
     let translator = MozhiTranslator::new(MOZHI_INSTANCE.clone());
+
+    let text = match args.text.as_deref() {
+        Some("-") | None => &read_text_from_stdin().await?,
+        Some(text) => text,
+    };
+
     match translator
-        .translate(&args.text, &args.engine, &args.from, &args.to)
+        .translate(text, &args.engine, &args.from, &args.to)
         .await
     {
         Ok(result) => println!("Translation: {}", result),
@@ -80,6 +86,33 @@ async fn cmd_translate(args: TranslateArgs) -> Result<(), Report> {
     }
 
     Ok(())
+}
+
+async fn read_text_from_stdin() -> Result<String, Report> {
+    use std::io::IsTerminal;
+    use tokio::io::AsyncReadExt;
+
+    const TEXT_MISSING_ERROR: &str =
+        "Missing TEXT. Provide it as an argument or pipe it via stdin.";
+
+    if std::io::stdin().is_terminal() {
+        bail!(TEXT_MISSING_ERROR);
+    }
+
+    let mut stdin = tokio::io::stdin();
+    let mut buf = String::new();
+    stdin
+        .read_to_string(&mut buf)
+        .await
+        .context("Failed to read text from stdin")?;
+
+    // Common for piped input to end with a newline.
+    let buf = buf.trim_end_matches(['\n', '\r']);
+    if buf.is_empty() {
+        bail!(TEXT_MISSING_ERROR);
+    }
+
+    Ok(buf.to_string())
 }
 
 async fn cmd_list_engines() -> Result<(), Report> {
