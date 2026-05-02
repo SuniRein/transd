@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic, clippy::nursery)]
+
 use clap::{Args, Parser, Subcommand};
 use rootcause::prelude::*;
 use std::{env, sync::LazyLock};
@@ -81,8 +83,8 @@ async fn cmd_translate(args: TranslateArgs) -> Result<(), Report> {
         .translate(text, &args.engine, &args.from, &args.to)
         .await
     {
-        Ok(result) => println!("Translation: {}", result),
-        Err(e) => eprintln!("Error: {}", e),
+        Ok(result) => println!("Translation: {result}"),
+        Err(e) => eprintln!("Error: {e}"),
     }
 
     Ok(())
@@ -124,7 +126,7 @@ async fn cmd_list_engines() -> Result<(), Report> {
                 println!("- {} ({})", engine.name, engine.id);
             }
         }
-        Err(e) => eprintln!("Error: {}", e),
+        Err(e) => eprintln!("Error: {e}"),
     }
 
     Ok(())
@@ -139,7 +141,7 @@ async fn cmd_list_source_languages(args: ListLanguagesArgs) -> Result<(), Report
                 println!("- {} ({})", lang.name, lang.id);
             }
         }
-        Err(e) => eprintln!("Error: {}", e),
+        Err(e) => eprintln!("Error: {e}"),
     }
 
     Ok(())
@@ -154,7 +156,7 @@ async fn cmd_list_target_languages(args: ListLanguagesArgs) -> Result<(), Report
                 println!("- {} ({})", lang.name, lang.id);
             }
         }
-        Err(e) => eprintln!("Error: {}", e),
+        Err(e) => eprintln!("Error: {e}"),
     }
 
     Ok(())

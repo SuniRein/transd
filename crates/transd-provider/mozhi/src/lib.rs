@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic, clippy::nursery)]
+
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use reqwest::Client;
@@ -11,6 +13,7 @@ pub struct MozhiTranslator {
 }
 
 impl MozhiTranslator {
+    #[must_use]
     pub fn new(uri: String) -> Self {
         Self {
             uri,

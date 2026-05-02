@@ -7,6 +7,10 @@ use rootcause::prelude::*;
 use std::sync::Arc;
 use transd_translate::Translator;
 
+#[allow(
+    clippy::too_many_lines,
+    reason = "This function is the main update loop and handles all messages, so it's expected to be long."
+)]
 pub fn update(
     state: &mut AppState,
     message: Message,

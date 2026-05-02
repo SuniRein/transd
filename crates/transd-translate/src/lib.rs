@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic, clippy::nursery)]
+
 use async_trait::async_trait;
 use std::fmt;
 

@@ -14,7 +14,7 @@ pub fn load_engines(
     state.error = None;
 
     Task::perform(async move { translator.list_engines().await }, |res| {
-        Message::EnginesLoaded(res.map_err(|e| e.into_cloneable()))
+        Message::EnginesLoaded(res.map_err(Report::into_cloneable))
     })
 }
 
@@ -35,16 +35,15 @@ pub fn load_languages(
         let engine_id = engine.id.clone();
         Task::perform(
             async move { translator.list_source_languages(&engine_id).await },
-            |res| Message::SourceLanguagesLoaded(res.map_err(|e| e.into_cloneable())),
+            |res| Message::SourceLanguagesLoaded(res.map_err(Report::into_cloneable)),
         )
     };
 
     let target_task = {
-        let translator = Arc::clone(&translator);
         let engine_id = engine.id.clone();
         Task::perform(
             async move { translator.list_target_languages(&engine_id).await },
-            |res| Message::TargetLanguagesLoaded(res.map_err(|e| e.into_cloneable())),
+            |res| Message::TargetLanguagesLoaded(res.map_err(Report::into_cloneable)),
         )
     };
 
@@ -77,6 +76,6 @@ pub fn translate(
     let to = to.id.clone();
     Task::perform(
         async move { translator.translate(&text, &engine, &from, &to).await },
-        |res| Message::Translated(res.map_err(|e| e.into_cloneable())),
+        |res| Message::Translated(res.map_err(Report::into_cloneable)),
     )
 }
