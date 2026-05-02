@@ -18,4 +18,9 @@ pub enum Message {
     Translate,
     Translated(Result<String, Report<Dynamic, Cloneable>>),
     CopyResult,
+
+    // D-Bus control plane.
+    DbusTranslateSelection,
+    DbusSelectionRead(Option<String>),
+    DbusError(String),
 }

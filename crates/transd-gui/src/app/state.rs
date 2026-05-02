@@ -19,6 +19,9 @@ pub struct AppState {
     pub is_loading: bool,
     pub pending: usize,
     pub error: Option<Report<Dynamic, Cloneable>>,
+
+    /// Human readable status line (e.g. `DBus` startup/errors).
+    pub status: Option<String>,
 }
 
 impl AppState {
@@ -35,6 +38,7 @@ impl AppState {
             is_loading: true,
             pending: 0,
             error: None,
+            status: None,
         }
     }
 

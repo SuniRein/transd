@@ -62,6 +62,8 @@ pub fn view_toolbar(state: &AppState) -> Element<'_, Message> {
     let status = {
         let status = if state.is_loading {
             Some("Loading...".to_string())
+        } else if let Some(s) = state.status.as_ref() {
+            Some(s.clone())
         } else {
             state.error.as_ref().map(ToString::to_string)
         };

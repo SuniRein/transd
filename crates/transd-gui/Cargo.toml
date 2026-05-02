@@ -10,6 +10,7 @@ repository.workspace = true
 iced = { version = "0.14.0", features = ["debug", "tokio"] }
 rootcause = { workspace = true }
 tokio = { workspace = true }
+zbus = { version = "5.15.0", features = ["tokio"] }
 
 transd-provider-mozhi = { workspace = true }
 transd-translate = { workspace = true }

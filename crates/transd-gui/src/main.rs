@@ -1,6 +1,7 @@
 #![warn(clippy::pedantic, clippy::nursery)]
 
 mod app;
+mod dbus;
 mod infra;
 
 use crate::app::App;
@@ -14,6 +15,7 @@ fn main() -> iced::Result {
         App::update,
         App::view,
     )
+    .subscription(|_| dbus::subscription())
     .title("transd")
     .centered()
     .run()

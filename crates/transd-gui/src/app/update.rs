@@ -29,6 +29,7 @@ pub fn update(
                     state.available_target_languages.clear();
                     state.source_language = None;
                     state.target_language = None;
+                    state.status = None;
                     service::load_languages(state, translator)
                 }
                 Err(e) => {
@@ -122,6 +123,7 @@ pub fn update(
             state.source = text_editor::Content::new();
             state.target = text_editor::Content::new();
             state.error = None;
+            state.status = None;
             Task::none()
         }
 
@@ -134,6 +136,7 @@ pub fn update(
                 Ok(output) => {
                     state.target = text_editor::Content::with_text(&output);
                     state.error = None;
+                    state.status = None;
                 }
                 Err(e) => {
                     state.error = Some(e);
@@ -148,6 +151,29 @@ pub fn update(
                 return Task::none();
             }
             iced::clipboard::write(text)
+        }
+
+        Message::DbusTranslateSelection => Task::perform(
+            async move { crate::infra::primary_selection::read_primary_best_effort().await },
+            |res| match res {
+                Ok(v) => Message::DbusSelectionRead(v),
+                Err(e) => Message::DbusError(format!("read primary failed: {e}")),
+            },
+        ),
+
+        Message::DbusSelectionRead(text) => {
+            if let Some(text) = text
+                && !text.trim().is_empty()
+            {
+                state.source = text_editor::Content::with_text(&text);
+                return service::translate(state, translator);
+            }
+            Task::none()
+        }
+
+        Message::DbusError(e) => {
+            state.status = Some(e);
+            Task::none()
         }
     }
 }
