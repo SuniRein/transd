@@ -78,6 +78,7 @@ impl Translator for MozhiTranslator {
 
         let engines = response_map
             .into_iter()
+            .filter(|(id, _)| id != "all" && id != "some") // Filter special entries in mozhi
             .map(|(id, name)| Engine { id, name })
             .collect();
 
